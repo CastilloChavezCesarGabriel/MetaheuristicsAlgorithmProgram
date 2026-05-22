@@ -1,5 +1,6 @@
 import queue
 import threading
+import time
 
 from engine.convergence import ConvergenceChecker, default_patience
 from engine.history import RunHistory
@@ -8,14 +9,20 @@ from problems.base_problem import calculate_fitness
 
 class Runner:
     """Orquesta la ejecución de un algoritmo sobre un problema en un thread
-    separado, comunicándose con la GUI vía queue.Queue (sección 12)."""
+    separado, comunicándose con la GUI vía queue.Queue (sección 12).
+
+    `step_delay` (seconds) pauses the loop after each iteration. Used for
+    TSP animation: 0.05s gives ~20 fps so the user can actually see the
+    tour evolve frame by frame instead of finishing in a 1-second blur.
+    """
 
     def __init__(self, problem, algorithm, params: dict, maximize: bool,
-                 convergence_patience: int = None):
+                 convergence_patience: int = None, step_delay: float = 0.0):
         self._problem = problem
         self._algorithm = algorithm
         self._params = params
         self._maximize = maximize
+        self._step_delay = max(0.0, float(step_delay))
 
         self._total_iterations = (
             params.get('generations') or params.get('iterations') or 100
@@ -73,6 +80,10 @@ class Runner:
                 if self._convergence.check(step_result['best_fitness']):
                     converged = True
                     break
+
+                if self._step_delay > 0.0 and not cancel_event.is_set():
+                    # interruptible sleep so Cancelar stays responsive
+                    cancel_event.wait(self._step_delay)
 
         except Exception as exc:
             result_queue.put({'type': 'error', 'message': str(exc)})

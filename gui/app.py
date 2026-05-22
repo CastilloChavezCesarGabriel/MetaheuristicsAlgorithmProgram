@@ -219,7 +219,11 @@ class App:
         )
         patience = int(params.get('convergence_n', default_patience(total_iters)))
 
-        runner = Runner(problem, algorithm, params, self.state['maximize'], patience)
+        # Slow TSP runs to ~20 fps so the live tour animation is visible
+        step_delay = 0.05 if self.state.get('problem') == 'tsp' else 0.0
+
+        runner = Runner(problem, algorithm, params, self.state['maximize'],
+                        patience, step_delay=step_delay)
         self.screens['results'].start_run(runner, total_iters)
         self.show_screen('results')
 

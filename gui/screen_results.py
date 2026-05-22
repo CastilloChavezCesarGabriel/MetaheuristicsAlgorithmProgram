@@ -398,7 +398,7 @@ class ScreenResults(ctk.CTkFrame):
         if (self._app.state.get('problem') == 'tsp'
                 and msg.get('best_solution') is not None):
             now = time.monotonic()
-            if now - self._last_live_t >= 0.25:
+            if now - self._last_live_t >= 0.08:
                 self._last_live_t = now
                 self._redraw_live_tsp(msg['best_solution'], msg['iteration'])
 
@@ -439,7 +439,14 @@ class ScreenResults(ctk.CTkFrame):
         self._draw_charts(history.get_segments())
         self._draw_viz(history)
         self._fill_panel(history, converged, cancelled)
-        self._tabview.set('Solucion')
+        # Render the final route into the live tab so users see the result
+        # without losing the animation context
+        if (self._app.state.get('problem') == 'tsp'
+                and history.best_solution is not None):
+            self._redraw_live_tsp(history.best_solution, history.best_iteration)
+            self._tabview.set('Evolucion')
+        else:
+            self._tabview.set('Solucion')
 
         if converged:
             self._progress_lbl.configure(text='Convergencia alcanzada')
