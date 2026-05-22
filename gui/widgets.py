@@ -261,7 +261,7 @@ def _bind_card_hover(card, inner, badge, spec):
         widget.bind('<Leave>', on_leave)
         widget.bind('<Button-1>', on_click)
         try:
-            widget.configure(cursor='hand2')
+            widget.configure(cursor='arrow')
         except Exception:
             pass
 
@@ -352,7 +352,7 @@ def illustrated_card(parent, spec, draw_fn, width=300, height=240):
         widget.bind('<Leave>', on_leave)
         widget.bind('<Button-1>', on_click)
         try:
-            widget.configure(cursor='hand2')
+            widget.configure(cursor='arrow')
         except Exception:
             pass
 
