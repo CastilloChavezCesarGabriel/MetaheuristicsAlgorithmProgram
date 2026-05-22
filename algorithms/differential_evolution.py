@@ -27,15 +27,7 @@ def _best_solution_de(ind, prob_type):
 class DifferentialEvolution(BaseAlgorithm):
 
     def initialize(self, problem, params: dict, maximize: bool):
-        from problems import prob_type_of
-
-        self.problem  = problem
-        self.params   = params
-        self.maximize = maximize
-        self.current_iter = 0
-        self.max_iters = params['generations']
-
-        self._prob_type = prob_type_of(problem)
+        self._prepare(problem, params, maximize, iters_key='generations')
 
         pop_size = params['population_size']
 
@@ -115,7 +107,3 @@ class DifferentialEvolution(BaseAlgorithm):
             {'name': 'strategy',        'type': 'str',                'default': 'DE/rand/1',
              'description': 'Estrategia de mutacion'},
         ]
-
-    @property
-    def is_finished(self) -> bool:
-        return self.current_iter >= self.max_iters

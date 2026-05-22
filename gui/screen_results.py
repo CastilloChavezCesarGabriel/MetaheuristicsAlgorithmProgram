@@ -4,13 +4,12 @@ import time
 import customtkinter as ctk
 
 import numpy as np
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.patches import Patch
 
 from gui.widgets import (COLORS, FONTS, primary_button, danger_button,
                           secondary_button, ghost_button, accent_button,
-                          make_progress_bar, style_ax, stat_card)
+                          make_progress_bar, make_figure_canvas,
+                          style_ax, stat_card)
 from config.labels import PROBLEM_LABELS, ALGORITHM_SHORT
 
 # Category colors (up to 10)
@@ -261,17 +260,9 @@ class ScreenResults(ctk.CTkFrame):
         tab_sol  = self._tabview.add('Solucion')
         tab_evo  = self._tabview.add('Evolucion')
 
-        self._fig = Figure(figsize=(9.2, 3.6), dpi=120, facecolor=COLORS['bg'])
-        self._conv_canvas = FigureCanvasTkAgg(self._fig, master=tab_conv)
-        self._conv_canvas.get_tk_widget().pack(fill='both', expand=True)
-
-        self._viz_fig = Figure(figsize=(9.2, 3.6), dpi=120, facecolor=COLORS['bg'])
-        self._viz_canvas = FigureCanvasTkAgg(self._viz_fig, master=tab_sol)
-        self._viz_canvas.get_tk_widget().pack(fill='both', expand=True)
-
-        self._live_fig = Figure(figsize=(9.2, 3.6), dpi=120, facecolor=COLORS['bg'])
-        self._live_canvas = FigureCanvasTkAgg(self._live_fig, master=tab_evo)
-        self._live_canvas.get_tk_widget().pack(fill='both', expand=True)
+        self._fig,      self._conv_canvas = make_figure_canvas(tab_conv)
+        self._viz_fig,  self._viz_canvas  = make_figure_canvas(tab_sol)
+        self._live_fig, self._live_canvas = make_figure_canvas(tab_evo)
         self._last_live_t = 0.0
 
         # ── Solution text panel ──

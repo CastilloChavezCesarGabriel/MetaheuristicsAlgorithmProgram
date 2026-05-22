@@ -23,15 +23,7 @@ def _eval_pso(problem, pos, maximize, prob_type):
 class PSO(BaseAlgorithm):
 
     def initialize(self, problem, params: dict, maximize: bool):
-        from problems import prob_type_of
-
-        self.problem = problem
-        self.params = params
-        self.maximize = maximize
-        self.current_iter = 0
-        self.max_iters = params['iterations']
-
-        self._prob_type = prob_type_of(problem)
+        self._prepare(problem, params, maximize, iters_key='iterations')
 
         n = params['num_particles']
         self.w    = params['w']
@@ -129,7 +121,3 @@ class PSO(BaseAlgorithm):
             {'name': 'vmax',          'type': 'float', 'min': 0.01,'max': 100.0,'default': 5.0,
              'description': 'Velocidad maxima'},
         ]
-
-    @property
-    def is_finished(self) -> bool:
-        return self.current_iter >= self.max_iters

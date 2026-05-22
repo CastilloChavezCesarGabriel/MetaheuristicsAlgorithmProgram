@@ -85,15 +85,7 @@ def _swap_mutation(ind, rate):
 class GeneticAlgorithm(BaseAlgorithm):
 
     def initialize(self, problem, params: dict, maximize: bool):
-        from problems import prob_type_of
-
-        self.problem = problem
-        self.params = params
-        self.maximize = maximize
-        self.current_iter = 0
-        self.generations = params['generations']
-
-        self._prob_type = prob_type_of(problem)
+        self._prepare(problem, params, maximize, iters_key='generations')
 
         pop_size = params['population_size']
         self.population = [problem.generate_random_solution() for _ in range(pop_size)]
@@ -179,7 +171,3 @@ class GeneticAlgorithm(BaseAlgorithm):
                 'description': 'Parametro alpha del BLX-alpha',
             })
         return base
-
-    @property
-    def is_finished(self) -> bool:
-        return self.current_iter >= self.generations

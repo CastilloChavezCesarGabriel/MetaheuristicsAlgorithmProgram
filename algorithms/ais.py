@@ -7,15 +7,7 @@ from problems.base_problem import calculate_fitness
 class AIS(BaseAlgorithm):
 
     def initialize(self, problem, params: dict, maximize: bool):
-        from problems import prob_type_of
-
-        self.problem  = problem
-        self.params   = params
-        self.maximize = maximize
-        self.current_iter = 0
-        self.max_iters = params['generations']
-
-        self._prob_type = prob_type_of(problem)
+        self._prepare(problem, params, maximize, iters_key='generations')
 
         pop_size = params['population_size']
         self.pop = [problem.generate_random_solution() for _ in range(pop_size)]
@@ -139,7 +131,3 @@ class AIS(BaseAlgorithm):
             {'name': 'rho',             'type': 'float', 'min': 0.01,'max': 10.0,'default': 3.0,
              'description': 'Parametro de decaimiento rho'},
         ]
-
-    @property
-    def is_finished(self) -> bool:
-        return self.current_iter >= self.max_iters

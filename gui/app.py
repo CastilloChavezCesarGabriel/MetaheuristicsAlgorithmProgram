@@ -5,7 +5,6 @@ from gui.widgets import COLORS, FONTS, STEPS
 from engine.convergence import default_patience
 from engine.runner import Runner
 
-
 class App:
     def __init__(self):
         self.root = ctk.CTk()
@@ -227,15 +226,23 @@ class App:
         self.screens['results'].start_run(runner, total_iters)
         self.show_screen('results')
 
+    @staticmethod
+    def _parse_dims_and_bounds(params: dict):
+        """Reads 'dimensions' and per-dim 'lower_bound_xN'/'upper_bound_xN'
+        from the params dict. Returns (dims, [(lo, hi), ...])."""
+        dims = int(params['dimensions'])
+        bounds = [(float(params['lower_bound_x1']),
+                   float(params['upper_bound_x1']))]
+        if dims == 2:
+            bounds.append((float(params['lower_bound_x2']),
+                           float(params['upper_bound_x2'])))
+        return dims, bounds
+
     def _build_problem(self, params: dict):
         p = self.state['problem']
         if p == 'continuous':
             from problems.continuous import ContinuousProblem
-            dims = int(params['dimensions'])
-            bounds = [(float(params['lower_bound_x1']), float(params['upper_bound_x1']))]
-            if dims == 2:
-                bounds.append((float(params['lower_bound_x2']),
-                                float(params['upper_bound_x2'])))
+            dims, bounds = self._parse_dims_and_bounds(params)
             return ContinuousProblem(params['expression'], dims, bounds)
         elif p == 'knapsack':
             from problems.knapsack import KnapsackProblem
@@ -246,12 +253,7 @@ class App:
                                    float(params['W']), float(params['alpha']))
         elif p == 'categorical':
             from problems.categorical import CategoricalProblem
-            dims   = int(params['dimensions'])
-            bounds = [(float(params['lower_bound_x1']),
-                       float(params['upper_bound_x1']))]
-            if dims == 2:
-                bounds.append((float(params['lower_bound_x2']),
-                               float(params['upper_bound_x2'])))
+            dims, bounds = self._parse_dims_and_bounds(params)
             n_opts = int(params['num_options'])
             opt_v  = [float(v.strip()) for v in params['option_values'].split(',')]
             return CategoricalProblem(params['expression'], dims, bounds, n_opts, opt_v)

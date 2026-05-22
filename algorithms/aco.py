@@ -14,16 +14,8 @@ def _gaussian_weights(k, q):
 class ACO(BaseAlgorithm):
 
     def initialize(self, problem, params: dict, maximize: bool):
-        from problems import prob_type_of
-
-        self.problem  = problem
-        self.params   = params
-        self.maximize = maximize
-        self.current_iter = 0
-        self.max_iters = params['iterations']
-        self.num_ants  = params['num_ants']
-
-        self._prob_type = prob_type_of(problem)
+        self._prepare(problem, params, maximize, iters_key='iterations')
+        self.num_ants = params['num_ants']
 
         if self._prob_type in ('continuous', 'categorical'):
             self._init_acor()
@@ -289,7 +281,3 @@ class ACO(BaseAlgorithm):
             {'name': 'tau0',       'type': 'float', 'min': 0.001,'max': 10.0, 'default': 0.1,
              'description': 'Feromona inicial tau0'},
         ]
-
-    @property
-    def is_finished(self) -> bool:
-        return self.current_iter >= self.max_iters

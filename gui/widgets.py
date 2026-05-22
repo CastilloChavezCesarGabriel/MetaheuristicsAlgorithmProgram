@@ -4,6 +4,9 @@ import random as _rng
 import tkinter as tk
 import customtkinter as ctk
 
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 # ---------------------------------------------------------------------------
 # Color Palette — Indigo-Cyan analogous scheme
 # ---------------------------------------------------------------------------
@@ -693,6 +696,18 @@ def stat_card(parent, title, value_var, accent_color=None, width=180):
     ).pack(fill='x', side='bottom')
 
     return card
+
+
+# ---------------------------------------------------------------------------
+# matplotlib Figure + canvas pair (used 3x by ScreenResults)
+# ---------------------------------------------------------------------------
+def make_figure_canvas(parent):
+    """Returns (Figure, FigureCanvasTkAgg) styled for the dark theme.
+    The canvas is already packed; the caller only needs to retain the figure."""
+    fig = Figure(figsize=(9.2, 3.6), dpi=120, facecolor=COLORS['bg'])
+    canvas = FigureCanvasTkAgg(fig, master=parent)
+    canvas.get_tk_widget().pack(fill='both', expand=True)
+    return fig, canvas
 
 
 # ---------------------------------------------------------------------------

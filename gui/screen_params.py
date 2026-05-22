@@ -201,29 +201,38 @@ class ScreenParams(ctk.CTkFrame):
         }
         self._add_section('Criterio de Convergencia', [conv_schema])
 
-    def _add_dataset_loader(self):
-        self._add_section_header('Datasets Precargados')
+    def _add_picker_loader(self, title, items, on_load, combo_width=280):
+        """Render a 'pick from a dropdown, then Cargar' row.
+
+        `items` is a list of (label, payload). When the user clicks Cargar,
+        `on_load(payload)` is invoked with the payload of the selected label.
+        """
+        self._add_section_header(title)
 
         row_frame = ctk.CTkFrame(self._scroll_frame, fg_color='transparent')
         row_frame.pack(pady=(2, 12))
 
-        self._dataset_var = ctk.StringVar(value=TSP_DATASETS[0][0])
-        combo = styled_combobox(
-            row_frame,
-            variable=self._dataset_var,
-            values=[label for label, _ in TSP_DATASETS],
-            width=280,
-        )
-        combo.pack(side='left', padx=(0, 10))
+        var = ctk.StringVar(value=items[0][0])
+        styled_combobox(
+            row_frame, variable=var,
+            values=[lbl for lbl, _ in items],
+            width=combo_width,
+        ).pack(side='left', padx=(0, 10))
+
+        def _trigger():
+            label = var.get()
+            payload = next((p for lbl, p in items if lbl == label), None)
+            if payload is not None:
+                on_load(payload)
+
         secondary_button(
-            row_frame, 'Cargar', self._load_selected_dataset, width=100, height=34,
+            row_frame, 'Cargar', _trigger, width=100, height=34,
         ).pack(side='left')
 
-    def _load_selected_dataset(self):
-        label = self._dataset_var.get()
-        name  = next((k for lbl, k in TSP_DATASETS if lbl == label), None)
-        if name:
-            self._load_tsp_dataset(name)
+    def _add_dataset_loader(self):
+        self._add_picker_loader(
+            'Datasets Precargados', TSP_DATASETS, self._load_tsp_dataset,
+        )
 
     def _load_tsp_dataset(self, name: str):
         from utils.tsp_loader import load_dataset
@@ -236,27 +245,8 @@ class ScreenParams(ctk.CTkFrame):
         self._global_err_var.set('')
 
     def _add_sample_loader(self, title: str, samples: list):
-        self._add_section_header(title)
-
-        row_frame = ctk.CTkFrame(self._scroll_frame, fg_color='transparent')
-        row_frame.pack(pady=(2, 12))
-
-        var = ctk.StringVar(value=samples[0][0])
-        combo = styled_combobox(
-            row_frame,
-            variable=var,
-            values=[lbl for lbl, _ in samples],
-            width=320,
-        )
-        combo.pack(side='left', padx=(0, 10))
-
-        def _load(v=var, s=samples):
-            label = v.get()
-            fields = next((f for lbl, f in s if lbl == label), None)
-            if fields:
-                self._load_sample_fields(fields)
-
-        secondary_button(row_frame, 'Cargar', _load, width=100, height=34).pack(side='left')
+        self._add_picker_loader(title, samples, self._load_sample_fields,
+                                combo_width=320)
 
     def _load_sample_fields(self, fields: dict):
         for name, value in fields.items():
